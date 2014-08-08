@@ -1,143 +1,52 @@
 #!/bin/node
-
-//throw an exception lol
+var fs = require('fs');
 var _ = require('underscore');
 
-var thrrrow = function(error){
-    console.log('*****************ERROR********')
-    console.log(error);
+var utils = require('./utils');
 
-    console.log('<<<')
-    console.log('')
+// --- error throw/handle unit. ---
+// currently err unit is a single function 'thrrrow'
+var thrrrow= utils.ERR.thrrrow;
+
+// # unit test code :)
+var testErr = function() {
+    console.log();
+    console.log("----------------------");
+    console.log("error testing function\nwas called.");
+    console.log("going to throw a error");
+
+    thrrrow({"where": "в терновый куст"});
+    console.log();
+    console.log('called utils.ERR.thhhrow');
+    console.log("------------------------");
+    console.log();
 };
+// / unit test code ends
 
-var dq = 0x22; // double quote
-var nginx_quote = dq; //
-var space = 0x20; //
-var new_line = 0x0a; //
+// # unit test setup
+testThrowError = false;
 
-var patterns__sets = {
-	digits: [0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30], //[123456789900]
-    digits1_5: [0x31, 0x32, 0x33, 0x34, 0x35] //[1-5]
-};
+// # unit test runner
+if (testThrowError) {    testErr();     }
+// --- unit end. ---
 
-var digits = patterns__sets.digits;
-var digits1_5 = patterns__sets.digits1_5;
 
-var matchers__dict = {
-	nginx_quote: [nginx_quote],
-	methods: {
-		get: [nginx_quote, 0x47, 0x45, 0x54, space],
-		head: [nginx_quote, 0x48, 0x45, 0x41, 0x44, space]
-	},
-	response_code: [nginx_quote, space, digits1_5, digits, digits, space]
-};
 
-var MATCHERS_OBJECT = matchers__dict;
 
-var getMatcherArray = function(key){
-	var ks = key.split('.');
-	var pool = MATCHERS_OBJECT;
-	for (i=0; i<ks.length; i++) {
-		pool = pool[ks[i]];
-		if (!pool) {
-			thrrrow({
-                errorMessage: 'no such matcher :)',
-                function: 'getMatcherArray',
-				key: key,
-				segment: ks[i]
-			})			
-		}
-		if (Array.isArray(pool)) {
-			//console.log(ks.length-1);
-            //console.log(pool);
-			return pool;
-		}
-	}
-	return pool;
-};
+var PARSER = utils.PARSER;
 
-var getMatcherObject = function(key){
-    var get_matcher_function = function(item){
-        var mfSingle        = function(byte){            return (byte == item)        };
-        var mfMultiple      = function(byte){
-            return (item.indexOf(byte) > -1)
-        };
-        return Array.isArray(item) ? mfMultiple : mfSingle;
-    };
 
-    var ret = {meta: {key: key}};
-
-    var matcherArray = getMatcherArray(key);
-    if (!Array.isArray(matcherArray)){
-        thrrrow({
-            errorMessage: 'no such matcher :)',
-            function: 'getMatcherObject'
-        })
-    }
-    ret.matcherArray = matcherArray;
-
-    ret.matcherFunctions = [];
-    matcherArray.forEach(function(matcherItem){
-        ret.matcherFunctions.push(get_matcher_function(matcherItem));
-    });
-
-    return ret;
-};
-
-var testQuoteObject = getMatcherObject('nginx_quote');
-var testGetObject = getMatcherObject('methods.get');
-var testHeadObject = getMatcherObject('methods.head');
-
-var startMatchers = [testGetObject, testHeadObject];
+var getMatcherObject = PARSER.getMatcherObject;
+var getMatcherFunction = PARSER.getMatcherFunction;
 var endMatcher = getMatcherObject('response_code');
+var nextStart = PARSER.nextStart;
+var tryMatcherFrom = PARSER.tryMatcherFrom;
+var tryMatchFrom = PARSER.tryMatchFrom;
 
-var getMatcherFunction = function(matcherObject, localPosition){
-    return matcherObject.matcherFunctions[localPosition];
-};
+var testQuote = getMatcherFunction ( PARSER.store.testQuoteObject, 0 );
 
-var testQuote = getMatcherFunction ( testQuoteObject, 0 );
-
-//true if matches
-var tryMatchFrom = function (buffer, index, matcherFunction){
-    return matcherFunction(buffer[index]);
-};
-
-var tryMatcherFrom = function(buffer, index, matcherObject){
-    var mf = matcherObject.matcherFunctions;
-    //console.log(matcherObject.matcherArray);
-    for (var i=0; i< mf.length; i++) {
-        if (!tryMatchFrom(buffer, index+ i, mf[i])) return false;
-    }
-    return true;
-};
-
-function nextStart(buffer, resumePosition) {
-    while (buffer.length >= resumePosition++ && !tryMatchFrom(buffer, resumePosition, testQuote)){
-    }
-    return resumePosition;
-}
-
-module.exports = {
-  getMatcherArray: getMatcherArray,
-  getMatcherFunction: getMatcherFunction,
-  tryMatchFrom: tryMatchFrom,
-  nextStart: nextStart
-};
-
-var fs = require('fs');
-
-fs.readFile('tests/methods', function(err, linkString){
-	if (!err) {
-        //console.log(linkString);
-    }
-});
-
-var getOffset = function(testObject){
-    return testObject.matcherFunctions.length;
-};
-
-fs.readFile('sample/access.log', function(err, buf){
+var         nginxSampleFilePath = 'resources/sample logs/nginx/nginx sample log.log';
+fs.readFile(nginxSampleFilePath, function(err, file){
    if (err) {
        console.log(err);
        return;
@@ -147,50 +56,76 @@ fs.readFile('sample/access.log', function(err, buf){
     var prev, next = 0, countGet = 0, countHead = 0, countErrors = 0;
     do {
         prev = next;
-        next = nextStart(buf, prev+1);
+        next = nextStart(file, prev+1);
 
-        if (tryMatcherFrom(buf, next, testGetObject)) {
+        if (tryMatcherFrom(file, next, PARSER.store.testGetObject)) {
             countGet++;
             inside = true;
            // console.log("get at " + next);
         } else
-        if (tryMatcherFrom(buf, next, testHeadObject)) {
+        if (tryMatcherFrom(file, next, PARSER.store.testHeadObject)) {
             countHead++;
             inside = true;
            // console.log("head at " + next);
         }
 
         if (inside) {
-            var fin = nextStart(buf, next + 1);
+            var fin = nextStart(file, next + 1);
 
-            if (!tryMatcherFrom(buf, fin, endMatcher)) {
+            if (!tryMatcherFrom(file, fin, endMatcher)) {
                 countErrors++;
             }
             else {
-              //  console.log('length is ' + (fin - next));
-                var string = buf.toString('ascii', next, fin).split(' ');
-                string.pop();
-                string.shift();
-                string = (string.join(' ').split('?')[0]);
+
+                var string = file.toString('ascii', next, fin+5).split(' ');
+             //   console.log(string );//= file.toString('ascii', next, fin+5).split(' ');
+                var q = {
+                    method: string[0].replace('"', ''),
+                    protocol: string[2].replace('"', ''),
+                    response: string[3]
+                };
+
+                string = string[1].split('?')[0];
                 if (string.indexOf('/g/')==0) {
                     string = string.split('/g/')[1].split(',');
+                    r = [];
                     _.each(string, function(s){
-                        poo.push(s.split('@')[0]);
+                        r.push(_.extend({}, [q, {key: s.split('@')[0]} ]));
+                    });
+                    _.each(r, function(item){
+                        poo.push(item);
                     })
                 } else {
                     string = string.split('/')[1];
-                    poo.push(string);
+                    q.key = string;
+                    poo.push(q);
                 }
-
-
             }
             inside = false;
         }
 
-    } while (prev!=next && tryMatchFrom(buf, next, testQuote));
-    var moo = _.countBy(poo);
+    } while (prev!=next && tryMatchFrom(file, next, testQuote));
+    var moo = _.countBy(poo, function(item){
+        return item.key;
+    });
+    var zoo = _.countBy(poo, function(item){
+        return item.response;
+    });
+    var koo = _.countBy(poo, function(item){
+        return item.protocol;
+    });
+    var roo = _.countBy(poo, function(item){
+        return item.method;
+    });
     console.log(JSON.stringify(moo));
+    console.log();
     console.log(countGet + 'gets' );
+    console.log();
+    console.log(JSON.stringify(zoo));
+    console.log();
     console.log(countHead + 'heads' );
+    console.log(JSON.stringify(koo));
+    console.log(JSON.stringify(roo));
+    console.log();
     console.log(countErrors + 'errors' );
 });

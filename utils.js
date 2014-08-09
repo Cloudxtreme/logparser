@@ -67,6 +67,10 @@ var a = ASCII_CHARS;
 var digits = patterns__sets.digits;
 var digits1_5 = patterns__sets.digits1_5;
 
+// matcher is an array.
+// if array item is a char (0-255) value, then it s the only char suitable
+// if array item is array itself - then every item from that array suitable
+// no variable length strings etc is supported
 var matchers__dict = {
     nginx_quote: [nginx_quote],
     methods: {
@@ -77,11 +81,12 @@ var matchers__dict = {
     },
     response_code: [nginx_quote, space, digits1_5, digits, digits, space]
 };
-var MATCHERS_OBJECT = matchers__dict;
+var MATCHERS_STORAGE_OBJECT = matchers__dict;
 
-var getMatcherArray = function(key){
+//just extracts matcher from matchers__dict.
+var _getMatcherAsArray = function(key){
     var ks = key.split('.');
-    var pool = MATCHERS_OBJECT;
+    var pool = MATCHERS_STORAGE_OBJECT;
     for (var ii=0; ii<ks.length; ii++) {
         pool = pool[ks[ii]];
         if (!pool) {
@@ -112,7 +117,7 @@ var getMatcherObject = function(key){
 
     var ret = {meta: {key: key}};
 
-    var matcherArray = getMatcherArray(key);
+    var matcherArray = _getMatcherAsArray(key);
     if (!Array.isArray(matcherArray)){
         thrrrow({
             errorMessage: 'no such matcher :)',
@@ -166,18 +171,19 @@ var getOffset = function(testObject){ //TODO rename
 };
 
 exports.PARSER = {
-    getMatcherArray: getMatcherArray, //todo: give names that sense more
-    getMatcherFunction: getMatcherFunction,
+    //getMatcherArray: _getMatcherAsArray, //todo: give names that sense more
+    //getMatcherFunction: getMatcherFunction,
     tryMatchFrom: tryMatchFrom,
     tryMatcherFrom: tryMatcherFrom,
     getMatcherObject: getMatcherObject,
     nextStart: nextStart,
     getOffset: getOffset, // is needed ???
-    store: {
+    storeNginx: {
         testQuoteObject:testQuoteObject,
         testGetObject: testGetObject,
-        testHeadObject: testHeadObject
-
+        testHeadObject: testHeadObject,
+        testQuote: testQuote,
+        responseCodeMatcher: getMatcherObject('response_code')
     }
 };
 // --- --- PARSER DOMAIN ends --- ---

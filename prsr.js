@@ -30,16 +30,15 @@ testThrowError = false;
 if (testThrowError) {    testErr();     }
 // --- unit end. ---
 
+
 var PARSER = utils.PARSER;
 
-var getMatcherObject = PARSER.getMatcherObject;
-var getMatcherFunction = PARSER.getMatcherFunction;
-var endMatcher = getMatcherObject('response_code');
+var endMatcher = PARSER.storeNginx.responseCodeMatcher;
 var nextStart = PARSER.nextStart;
 var tryMatcherFrom = PARSER.tryMatcherFrom;
 var tryMatchFrom = PARSER.tryMatchFrom;
 
-var testQuote = getMatcherFunction ( PARSER.store.testQuoteObject, 0 );
+var testQuote = PARSER.storeNginx.testQuote;
 
 var parseNginx = function(filename, callback) {
     var bads = [];
@@ -64,11 +63,11 @@ var parseNginx = function(filename, callback) {
             prev = next;
             next = nextStart(file, prev + 1);
 
-            if (tryMatcherFrom(file, next, PARSER.store.testGetObject)) {
+            if (tryMatcherFrom(file, next, PARSER.storeNginx.testGetObject)) {
                 stats['GETs count']++;
                 inside = true;
                 // console.log("get at " + next);
-            } else if (tryMatcherFrom(file, next, PARSER.store.testHeadObject)) {
+            } else if (tryMatcherFrom(file, next, PARSER.storeNginx.testHeadObject)) {
                 stats['HEADs count']++;
                 inside = true;
                 // console.log("head at " + next);

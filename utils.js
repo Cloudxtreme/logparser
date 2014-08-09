@@ -26,7 +26,7 @@ exports.ERR = ERR;
 
 
 
-// --- --- PARSER DOMAIN --- ---
+// --- --- PARSER DOMAIN --- --- TODO: give names that make sense
 // single chars
 var dq = 0x22; // double quote
 var nginx_quote = dq; // see resources/sample logs/nginx/

@@ -27,6 +27,7 @@ exports.ERR = ERR;
 
 
 // --- --- PARSER DOMAIN --- --- TODO: give names that make sense
+// --- data subdomain ---
 // single chars
 var dq = 0x22; // double quote
 var nginx_quote = dq; // see resources/sample logs/nginx/
@@ -81,6 +82,9 @@ var matchers__dict = {
     },
     response_code: [nginx_quote, space, digits1_5, digits, digits, space]
 };
+// --- data subdomain ends. ---
+
+// --- code subdomain ---
 var MATCHERS_STORAGE_OBJECT = matchers__dict;
 
 //just extracts matcher from matchers__dict.
@@ -98,8 +102,6 @@ var _getMatcherAsArray = function(key){
             })
         }
         if (Array.isArray(pool)) {
-            //console.log(ks.length-1);
-            //console.log(pool);
             return pool;
         }
     }
@@ -116,7 +118,6 @@ var getMatcherObject = function(key){
     };
 
     var ret = {meta: {key: key}};
-
     var matcherArray = _getMatcherAsArray(key);
     if (!Array.isArray(matcherArray)){
         thrrrow({
@@ -134,50 +135,44 @@ var getMatcherObject = function(key){
     return ret;
 };
 
+//TODO: could accept key.path, not only matcherObject here
 var getMatcherFunction = function(matcherObject, localPosition){
     return matcherObject.matcherFunctions[localPosition];
 };
 
 //true if matches
-var tryMatchFrom = function (buffer, index, matcherFunction){
+var tryMatchingFunction = function (buffer, index, matcherFunction){
     return matcherFunction(buffer[index]);
 };
 
-var tryMatcherFrom = function(buffer, index, matcherObject){
+var tryMatcherObject = function(buffer, index, matcherObject){
     var mf = matcherObject.matcherFunctions;
-    //console.log(matcherObject.matcherArray);
     for (var i=0; i< mf.length; i++) {
-        if (!tryMatchFrom(buffer, index+ i, mf[i])) return false;
+        if (!tryMatchingFunction(buffer, index+ i, mf[i])) return false;
     }
     return true;
 };
+// --- code subdomain ends. ---
 
+// --- exports subdomain ---
 var testQuoteObject = getMatcherObject('nginx_quote');
 var testGetObject = getMatcherObject('methods.get');
 var testHeadObject = getMatcherObject('methods.head');
-//var startMatchers = [testGetObject, testHeadObject];
 
 var testQuote = getMatcherFunction ( testQuoteObject, 0 );
 
-//searches for ". todo: factor off.
-function nextStart(buffer, resumePosition) {
-    while (buffer.length >= resumePosition++ && !tryMatchFrom(buffer, resumePosition, testQuote)){
-    }
-    return resumePosition;
-}
-
+/*
 var getOffset = function(testObject){ //TODO rename
     return testObject.matcherFunctions.length;
-};
+};*/
 
 exports.PARSER = {
-    //getMatcherArray: _getMatcherAsArray, //todo: give names that sense more
-    //getMatcherFunction: getMatcherFunction,
-    tryMatchFrom: tryMatchFrom,
-    tryMatcherFrom: tryMatcherFrom,
+    getMatcherFunction: getMatcherFunction,
     getMatcherObject: getMatcherObject,
-    nextStart: nextStart,
-    getOffset: getOffset, // is needed ???
+
+    tryMatchingFunction: tryMatchingFunction,
+    tryMatcherObject: tryMatcherObject,
+
     storeNginx: {
         testQuoteObject:testQuoteObject,
         testGetObject: testGetObject,
@@ -186,4 +181,5 @@ exports.PARSER = {
         responseCodeMatcher: getMatcherObject('response_code')
     }
 };
+// --- exports subdomain ends. ---
 // --- --- PARSER DOMAIN ends --- ---

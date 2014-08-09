@@ -33,12 +33,17 @@ if (testThrowError) {    testErr();     }
 
 var PARSER = utils.PARSER;
 
+var tryMatcherObject = PARSER.tryMatcherObject;
+var tryMatchingFunction = PARSER.tryMatchingFunction;
+
 var endMatcher = PARSER.storeNginx.responseCodeMatcher;
-var nextStart = PARSER.nextStart;
-var tryMatcherFrom = PARSER.tryMatcherFrom;
-var tryMatchFrom = PARSER.tryMatchFrom;
 
 var testQuote = PARSER.storeNginx.testQuote;
+var nextStart = function(buffer, position) {
+    while (buffer.length >= position++ && !tryMatchingFunction(buffer, position, testQuote)){
+    }
+    return position;
+};
 
 var parseNginx = function(filename, callback) {
     var bads = [];
@@ -63,11 +68,11 @@ var parseNginx = function(filename, callback) {
             prev = next;
             next = nextStart(file, prev + 1);
 
-            if (tryMatcherFrom(file, next, PARSER.storeNginx.testGetObject)) {
+            if (tryMatcherObject(file, next, PARSER.storeNginx.testGetObject)) {
                 stats['GETs count']++;
                 inside = true;
                 // console.log("get at " + next);
-            } else if (tryMatcherFrom(file, next, PARSER.storeNginx.testHeadObject)) {
+            } else if (tryMatcherObject(file, next, PARSER.storeNginx.testHeadObject)) {
                 stats['HEADs count']++;
                 inside = true;
                 // console.log("head at " + next);
@@ -76,7 +81,7 @@ var parseNginx = function(filename, callback) {
             if (inside) {
                 var fin = nextStart(file, next + 1);
 
-                if (!tryMatcherFrom(file, fin, endMatcher)) {
+                if (!tryMatcherObject(file, fin, endMatcher)) {
                     stats['Errors count']++;
                 }
                 else {
@@ -112,7 +117,7 @@ var parseNginx = function(filename, callback) {
                 }
                 inside = false;
             }
-        } while (prev != next && tryMatchFrom(file, next, testQuote));
+        } while (prev != next && tryMatchingFunction(file, next, testQuote));
 
         stats['By project'] = JSON.stringify(_.countBy(results, function (item) {
             return item.key;

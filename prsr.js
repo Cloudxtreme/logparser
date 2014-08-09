@@ -55,7 +55,7 @@ var parseNginx = function(filename, callback) {
 
     fs.readFile(filename, function (err, file) {
         // check if file read successful
-        if (err) { console.log(err); callback(['error encountered', err]); return;}
+        if (err) { callback([err, err]); return;}
 
         var results = []; //here we store :)
         var inside = false, prev, next = 0; //buffer parsing finite-state-automate

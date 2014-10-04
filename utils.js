@@ -21,6 +21,7 @@ var ERR = {
         console.log('');
     }
 };
+var thrrrow = ERR.thrrrow;
 exports.ERR = ERR;
 // --- errors domain ends. ---
 
@@ -80,6 +81,7 @@ var matchers__dict = {
         put: [], //todo:
         post: [] //todo:
     },
+    new_line: [new_line],
     response_code: [nginx_quote, space, digits1_5, digits, digits, space]
 };
 // --- data subdomain ends. ---
@@ -156,6 +158,7 @@ var tryMatcherObject = function(buffer, index, matcherObject){
 
 // --- exports subdomain ---
 var testQuoteObject = getMatcherObject('nginx_quote');
+var testNewlineObject = getMatcherObject('new_line');
 var testGetObject = getMatcherObject('methods.get');
 var testHeadObject = getMatcherObject('methods.head');
 
@@ -179,6 +182,10 @@ exports.PARSER = {
         testHeadObject: testHeadObject,
         testQuote: testQuote,
         responseCodeMatcher: getMatcherObject('response_code')
+    },
+
+    storeMaxcdn: {
+        testNewline: getMatcherFunction ( testNewlineObject, 0 )
     }
 };
 // --- exports subdomain ends. ---

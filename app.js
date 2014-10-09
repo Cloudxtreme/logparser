@@ -13,7 +13,8 @@ function tryNginx(){
         console.log();
         console.log();
         console.log('parsing nginx sample file. file path is "' + config.nginxFilePath + '"');
-
+        console.log();
+        
         parser.parseNginx(config.nginxFilePath, function (ret) {
             var bads = ret[0];
             var stats = ret[1];
@@ -36,6 +37,7 @@ function tryMaxcdn(){
         console.log();
         console.log();
         console.log('parsing maxcdn sample file. file path is "' + config.maxcdnFilePath + '"');
+        console.log();
 
 
         parser.parseMaxcdn(config.maxcdnFilePath, function (ret) {

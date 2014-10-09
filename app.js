@@ -4,9 +4,12 @@
 var parser = require('./prsr.js');
 
 var config = require('./config.json');
+var fs = require('fs');
+
 
 function tryNginx(){
-    if (config.nginxFilePath) {
+
+    if (config.nginxFilePath && fs.existsSync(config.nginxFilePath)) {
         console.log();
         console.log();
         console.log('parsing nginx sample file. file path is "' + config.nginxFilePath + '"');
@@ -29,7 +32,7 @@ function tryNginx(){
 }
 
 function tryMaxcdn(){
-    if (config.maxcdnFilePath) {
+    if (config.maxcdnFilePath && fs.existsSync(config.maxcdnFilePath))  {
         console.log();
         console.log();
         console.log('parsing maxcdn sample file. file path is "' + config.maxcdnFilePath + '"');

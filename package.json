@@ -1,0 +1,19 @@
+{
+    "name": "logparser-jsdelivr",
+    "description": "JavaScript log parser for jsdelivr.",
+
+    "author": {
+        "name": "Angelo Tomarcafe",
+        "email": "angelo.tomarcafe@gmail.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": " git@github.com:jsdelivr/logparser.git"
+    },
+    "main": "app.js",
+    "version": "0.1.0",
+    "readmeFilename": "README.txt",
+    "dependencies": {
+        "underscore": ">=1.6.0"
+    }
+}

@@ -13,19 +13,25 @@
 # according to Jim Black, there will be 3 types of log. currently 2/3 processed - 
 # those are keyed as 'nginx' and 'maxcdn' logs
 
-# (i would appreciate if you, Jim :],  commit small (well smaller than 8M or 420M)
-#  logs sample to paths 
-#  '/recources/sample logs/nginx' 
-#  '/recources/sample logs/maxcdn'
-#  (as well as to create folder for third type, if any. ) )
- 
 # maxcdn is TabSeparatedValues, with newlines determining log item' borders 
 # nginx is. well i actually do not recall. 
  
 #  anyway, parser should extract response code, requested projects names.. 
 #  and some other information
  
- 
+# installation & running
+# ----------------------
+
+# this currently is a work in progress, and for now will
+# only parse sample files listed in config.json
+
+# 1. clone repo. go to folder.
+# 2. $ npm install
+# 3. go to config.json and setup proper paths for sample files.
+#	to cancel file parse, comment out resp. line in config. respect commas.
+#	currently there s only 'nginx' and 'maxcdn' file formats.
+#	paths are relative to project root
+# 4. $ node app
  
 # implementation
 # --------------
@@ -45,19 +51,9 @@
 
 #   in turn, app.js runs what prsr.js exports.
 
-## Conclusion
-## =============
-
-### remark
-#documentation format:
-#@<word>. ended with dot is item definition.
-#@ <word> is invoking variable into context
-
-
 # conclusion
 # ==========
 
 # further logic was inside project description
 # would be nice to see it here.
 
- 

@@ -1,0 +1,4 @@
+{
+    "nginxFilePath": "resources/sample logs/nginx/nginx sample log.log",
+    "maxcdnFilePath": "resources/sample logs/maxcdn/sample log maxcdn.txt"
+}

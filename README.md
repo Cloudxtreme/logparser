@@ -53,3 +53,5 @@ conclusion
 further logic was inside project description
 would be nice to see it here.
 
+[detailed p.l.a.n. link](https://github.com/jsdelivr/logparser/issues/1]https://github.com/jsdelivr/logparser/issues/1)
+

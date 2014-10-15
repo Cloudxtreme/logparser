@@ -14,7 +14,7 @@ function tryNginx(){
         console.log();
         console.log('parsing nginx sample file. file path is "' + config.nginxFilePath + '"');
         console.log();
-        
+
         parser.parseNginx(config.nginxFilePath, function (ret) {
             var bads = ret[0];
             var stats = ret[1];
